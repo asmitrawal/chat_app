@@ -1,7 +1,7 @@
 import 'package:chat_app/auth/repository/auth_repository.dart';
+import 'package:chat_app/auth/ui/login/login_screen.dart';
 import 'package:chat_app/chat/repository/chat_repository.dart';
 import 'package:chat_app/home/repository/home_repository.dart';
-import 'package:chat_app/home/ui/home_screen.dart';
 import 'package:chat_app/settings/cubit/theme_check_cubit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
               child: MaterialApp(
                 title: 'Chat App by Narco',
                 theme: state,
-                home: HomeScreen(),
+                home: LoginScreen(),
               ),
             );
           },
