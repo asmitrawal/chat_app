@@ -16,7 +16,17 @@ class HomeWidget extends StatelessWidget {
         appBar: AppBar(
           title: Text("HOME"),
           centerTitle: true,
-          // backgroundColor: Theme.of(context).colorScheme.secondary,
+          //for current username
+          actions: [
+            Text(
+              "@" +
+                  "${context.read<AuthRepository>().currentUser!.email!.split("@")[0]}",
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+            ),
+            SizedBox(
+              width: 25,
+            )
+          ],
         ),
         drawer: MyDrawer(),
         body: BlocBuilder<FetchUsersCubit, CommonState>(

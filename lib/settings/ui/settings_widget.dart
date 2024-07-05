@@ -9,10 +9,10 @@ class SettingsWidget extends StatefulWidget {
   State<SettingsWidget> createState() => _SettingsWidgetState();
 }
 
-class _SettingsWidgetState extends State<SettingsWidget> {
-  //theme toggle bool
-  bool themeBool = false;
+//theme toggle bool
+bool themeBool = false;
 
+class _SettingsWidgetState extends State<SettingsWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,13 +38,18 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   "Dark Mode",
                   style: TextStyle(fontSize: 16),
                 ),
-                Switch.adaptive(
-                  value: themeBool,
-                  onChanged: (value) {
-                    context.read<ThemeCheckCubit>().toggleTheme();
-                    setState(() {
-                      themeBool = value;
-                    });
+                BlocSelector<ThemeCheckCubit, ThemeData, bool>(
+                  selector: (state) {
+                    themeBool = state.brightness == Brightness.dark;
+                    return themeBool;
+                  },
+                  builder: (context, state) {
+                    return Switch.adaptive(
+                      value: themeBool,
+                      onChanged: (value) {
+                        context.read<ThemeCheckCubit>().toggleTheme();
+                      },
+                    );
                   },
                 ),
               ],

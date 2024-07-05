@@ -32,6 +32,4 @@ class FetchMessagesCubit extends Cubit<CommonState> {
       );
     });
   }
-
-  
 }

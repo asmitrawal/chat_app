@@ -8,8 +8,10 @@ import 'package:chat_app/chat/model/message.dart';
 import 'package:chat_app/common/components/message_box.dart';
 import 'package:chat_app/common/components/my_text_field.dart';
 import 'package:chat_app/common/state/common_state.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
-class ChatWidget extends StatelessWidget {
+class ChatWidget extends StatefulWidget {
   final String receiverId;
   final String receiverName;
   const ChatWidget({
@@ -19,35 +21,96 @@ class ChatWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<ChatWidget> createState() => _ChatWidgetState();
+}
+
+class _ChatWidgetState extends State<ChatWidget> {
+  ScrollController _scrollController = ScrollController();
+  FocusNode _focusNode = FocusNode();
+
+  void scrollDown() {
+    _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300), curve: Curves.linear);
+  }
+
+  @override
+  void initState() {
+    _focusNode.addListener(
+      () {
+        if (_focusNode.hasFocus) {
+          Future.delayed(Duration(milliseconds: 900), scrollDown);
+        }
+      },
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text(receiverName),
+        title: Text(widget.receiverName),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: BlocBuilder<FetchMessagesCubit, CommonState>(
-              builder: (context, state) {
-                if (state is CommonSuccessState<List<Message>>) {
-                  return ListView.builder(
-                    
-                    itemBuilder: (context, index) {
-                      return MessageBox(
-                        message: state.item[index],
-                      );
-                    },
-                    itemCount: state.item.length,
-                  );
-                } else {
-                  return Center();
-                }
-              },
+      body: BlocListener<SendMessageCubit, CommonState>(
+        listener: (context, state) {
+          if (state is CommonSuccessState) {
+            scrollDown();
+          }
+          if (state is CommonErrorState) {
+            Fluttertoast.showToast(
+                msg: state.message ?? "unable to send message");
+          }
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: BlocConsumer<FetchMessagesCubit, CommonState>(
+                listener: (context, state) {
+                  if (state is CommonErrorState) {
+                    Fluttertoast.showToast(
+                        msg: state.message ?? "unable to send message");
+                  }
+
+                  if (state is CommonSuccessState) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      scrollDown(); // Execute scrollDown() after the current frame
+                    });
+                  }
+                  if (state is CommonLoadingState) {
+                    context.loaderOverlay.show();
+                  } else {
+                    context.loaderOverlay.hide();
+                  }
+                },
+                builder: (context, state) {
+                  if (state is CommonSuccessState<List<Message>>) {
+                    return ListView.builder(
+                      controller: _scrollController,
+                      itemBuilder: (context, index) {
+                        return MessageBox(
+                          message: state.item[index],
+                        );
+                      },
+                      itemCount: state.item.length,
+                    );
+                  } else {
+                    return Center();
+                  }
+                },
+              ),
             ),
-          ),
-          _buildUserInput(context),
-        ],
+            _buildUserInput(context),
+          ],
+        ),
       ),
     );
   }
@@ -65,6 +128,7 @@ class ChatWidget extends StatelessWidget {
                 controller: _controller,
                 hintText: "Type a message",
                 obscureText: false,
+                focusNode: _focusNode,
               ),
             ),
             FittedBox(
@@ -74,7 +138,7 @@ class ChatWidget extends StatelessWidget {
                   if (_controller.text.isNotEmpty) {
                     context.read<SendMessageCubit>().sendMessages(
                           message: _controller.text,
-                          receiverId: receiverId,
+                          receiverId: widget.receiverId,
                         );
                     _controller.clear();
                   }

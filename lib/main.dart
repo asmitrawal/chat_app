@@ -1,7 +1,5 @@
 import 'package:chat_app/auth/repository/auth_repository.dart';
-import 'package:chat_app/auth/ui/login/login_screen.dart';
 import 'package:chat_app/chat/repository/chat_repository.dart';
-import 'package:chat_app/common/theme/my_theme_data.dart';
 import 'package:chat_app/home/repository/home_repository.dart';
 import 'package:chat_app/home/ui/home_screen.dart';
 import 'package:chat_app/settings/cubit/theme_check_cubit.dart';
@@ -38,7 +36,10 @@ class MyApp extends StatelessWidget {
       ],
       child: BlocProvider(
         create: (context) => ThemeCheckCubit(),
-        child: BlocBuilder<ThemeCheckCubit, ThemeData>(
+        child: BlocSelector<ThemeCheckCubit, ThemeData, ThemeData>(
+          selector: (state) {
+            return state;
+          },
           builder: (context, state) {
             return GlobalLoaderOverlay(
               child: MaterialApp(

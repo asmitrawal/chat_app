@@ -6,12 +6,14 @@ class MyTextField extends StatelessWidget {
   final String? hintText;
   final bool obscureText;
   final String? Function(String?)? validator;
+  final FocusNode? focusNode;
   MyTextField({
     Key? key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
     this.validator,
+    this.focusNode,
   }) : super(key: key);
 
   @override
@@ -19,15 +21,20 @@ class MyTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: TextFormField(
-          controller: controller,
-          obscureText: obscureText,
-          decoration: InputDecoration(
-            hintText: hintText,
-          ),
-          onTapOutside: (event) {
-            FocusScope.of(context).unfocus();
-          },
-          validator: validator,),
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          hintText: hintText,
+        ),
+        onTapOutside: (event) {
+          FocusScope.of(context).unfocus();
+        },
+        validator: validator,
+        focusNode: focusNode,
+        onTap: () {
+          focusNode!.requestFocus();
+        },
+      ),
     );
   }
 }
