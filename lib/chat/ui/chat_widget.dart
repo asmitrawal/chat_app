@@ -27,6 +27,7 @@ class ChatWidget extends StatefulWidget {
 class _ChatWidgetState extends State<ChatWidget> {
   ScrollController _scrollController = ScrollController();
   FocusNode _focusNode = FocusNode();
+  TextEditingController? _controller;
 
   void scrollDown() {
     _scrollController.animateTo(_scrollController.position.maxScrollExtent,
@@ -35,6 +36,7 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   @override
   void initState() {
+    _controller = TextEditingController();
     _focusNode.addListener(
       () {
         if (_focusNode.hasFocus) {
@@ -47,6 +49,7 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   @override
   void dispose() {
+    _controller!.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -116,7 +119,6 @@ class _ChatWidgetState extends State<ChatWidget> {
   }
 
   Widget _buildUserInput(BuildContext context) {
-    TextEditingController? _controller = TextEditingController();
     return Container(
       padding: EdgeInsets.symmetric(vertical: 15),
       child: IntrinsicHeight(
@@ -135,12 +137,12 @@ class _ChatWidgetState extends State<ChatWidget> {
               fit: BoxFit.fitHeight,
               child: InkWell(
                 onTap: () {
-                  if (_controller.text.isNotEmpty) {
+                  if (_controller!.text.isNotEmpty) {
                     context.read<SendMessageCubit>().sendMessages(
-                          message: _controller.text,
+                          message: _controller!.text,
                           receiverId: widget.receiverId,
                         );
-                    _controller.clear();
+                    _controller!.clear();
                   }
                 },
                 child: Container(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -10,16 +11,39 @@ import 'package:chat_app/common/components/my_button.dart';
 import 'package:chat_app/common/components/my_text_field.dart';
 import 'package:chat_app/common/state/common_state.dart';
 
-class RegisterWidget extends StatelessWidget {
+class RegisterWidget extends StatefulWidget {
   const RegisterWidget({super.key});
 
   @override
+  State<RegisterWidget> createState() => _RegisterWidgetState();
+}
+
+class _RegisterWidgetState extends State<RegisterWidget> {
+  GlobalKey<FormState>? _key = GlobalKey<FormState>();
+  TextEditingController? emailController;
+  TextEditingController? fullNameController;
+  TextEditingController? pwController;
+  TextEditingController? confirmPwController;
+  @override
+  void initState() {
+    emailController = TextEditingController();
+    fullNameController = TextEditingController();
+    pwController = TextEditingController();
+    confirmPwController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    emailController!.dispose();
+    fullNameController!.dispose();
+    pwController!.dispose();
+    confirmPwController!.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final _key = GlobalKey<FormState>();
-    TextEditingController? emailController = TextEditingController();
-    TextEditingController? fullNameController = TextEditingController();
-    TextEditingController? pwController = TextEditingController();
-    TextEditingController? confirmPwController = TextEditingController();
     return Scaffold(
         appBar: AppBar(),
         body: BlocListener<SignUpCubit, CommonState>(
@@ -122,7 +146,7 @@ class RegisterWidget extends StatelessWidget {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Please enter a valid password";
-                            } else if (value != pwController.text) {
+                            } else if (value != pwController!.text) {
                               return "Passwords dont match";
                             }
                             return null;
@@ -137,11 +161,11 @@ class RegisterWidget extends StatelessWidget {
                   MyButton(
                     buttonText: "Register",
                     onTap: () {
-                      if (_key.currentState!.validate()) {
+                      if (_key!.currentState!.validate()) {
                         context.read<SignUpCubit>().signUp(
-                              email: emailController.text,
-                              password: pwController.text,
-                              fullName: fullNameController.text,
+                              email: emailController!.text,
+                              password: pwController!.text,
+                              fullName: fullNameController!.text,
                             );
                       }
                     },

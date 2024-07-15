@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             return GlobalLoaderOverlay(
               child: MaterialApp(
+                debugShowCheckedModeBanner: false,
                 title: 'Chat App by Narco',
                 theme: state,
                 home: LoginScreen(),
